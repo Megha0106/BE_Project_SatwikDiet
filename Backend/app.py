@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import csv
 from flask import Flask, request,jsonify
 from flask_cors import CORS
 from PIL import Image,ImageOps
@@ -33,7 +34,23 @@ def classify():
       index = np.argmax(prediction)
       class_name = class_names[index]
       print("index",index)
-      print("class Name:",class_name)
-             
+      print("class Name:",class_name.replace('"',''))
+      class_name = class_name.replace('"','')      
 
-      return jsonify(class_name.strip())
+      return (class_name.strip())
+
+
+
+@app.route('/predict',methods= ['GET','POST'])
+def prediction():
+   predictions = []
+   with open("foodData.csv",'r')as file:
+      print("request:",request.form['foodItem'])
+      reader = csv.reader(file)
+      food_item = request.form['foodItem']
+      for row in reader:
+         if food_item == row[0]:
+            predictions = row[1:5]
+            print(predictions)
+
+   return jsonify(predictions)
